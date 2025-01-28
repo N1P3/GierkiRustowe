@@ -26,7 +26,7 @@ impl GameState {
     }
 
     fn start_snake(&mut self) {
-        self.active_game = ActiveGame::Snake(SnakeGame::new(10));
+        self.active_game = ActiveGame::Snake(SnakeGame::new(40));
     }
 
     fn return_to_menu(&mut self) {
@@ -44,7 +44,7 @@ impl EventHandler<ggez::GameError> for GameState {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
         match &mut self.active_game {
             ActiveGame::Menu => Ok(()),
-            ActiveGame::FlappyBird(game) => game.update(ctx),
+            ActiveGame::FlappyBird(game) => game.update(),
             ActiveGame::Snake(game) => Ok(game.update(ctx)),
         }
     }
@@ -62,7 +62,7 @@ impl EventHandler<ggez::GameError> for GameState {
 
     fn key_down_event(
         &mut self,
-        ctx: &mut Context,
+        _ctx: &mut Context,
         keycode: KeyCode,
         _keymods: KeyMods,
         _repeat: bool

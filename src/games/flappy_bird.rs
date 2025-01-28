@@ -1,5 +1,4 @@
 use ggez::graphics::{self, Color, DrawMode, DrawParam, Mesh};
-use ggez::mint::Point2;
 use ggez::{Context, GameResult};
 use rand::Rng;
 
@@ -57,7 +56,7 @@ impl FlappyBirdGame {
         Ok(())
     }
 
-    pub fn update(&mut self, ctx: &mut Context) -> GameResult {
+    pub fn update(&mut self) -> GameResult {
         if self.is_dead {
             return Ok(());
         }
@@ -73,7 +72,7 @@ impl FlappyBirdGame {
         if self.pipes.is_empty() || self.pipes[self.pipes.len() - 1].x < 600.0 {
             self.generate_pipe();
         }
-        self.check_collisions(ctx);
+        self.check_collisions();
         Ok(())
     }
 
@@ -95,7 +94,7 @@ impl FlappyBirdGame {
         self.pipes.push(pipe);
     }
 
-    fn check_collisions(&mut self, ctx: &mut Context) {
+    fn check_collisions(&mut self) {
         for pipe in &self.pipes {
             let bird_rect = graphics::Rect::new(self.position.0, self.position.1, self.width, self.height);
             let top_pipe_rect = graphics::Rect::new(pipe.x, 0.0, pipe.width, pipe.height);
