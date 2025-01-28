@@ -1,83 +1,90 @@
-use ggez::{mint, Context, GameResult};
-use ggez::event::{self, EventHandler};
-use ggez::graphics;
-use ggez::input::keyboard::{KeyCode, KeyMods};
-use ggez::conf::{WindowMode, WindowSetup};
+use ggez::{graphics, Context, GameResult};
+use ggez::event::{KeyCode, KeyMods, EventHandler};
 use crate::games::flappy_bird::FlappyBirdGame;
+use crate::games::snake::SnakeGame;
 
+#[derive(PartialEq)]
+pub enum ActiveGame {
+    Menu,
+    FlappyBird(FlappyBirdGame),
+    Snake(SnakeGame),
+}
 
-pub(crate) struct GameState {
-    menu: bool,
-    flappy_bird_game: Option<FlappyBirdGame>,
+pub struct GameState {
+    pub active_game: ActiveGame,
 }
 
 impl GameState {
     pub fn new() -> Self {
         GameState {
-            menu: true,
-            flappy_bird_game: None,
+            active_game: ActiveGame::Menu,
         }
     }
 
     fn start_flappy_bird(&mut self) {
-        self.menu = false;
-        self.flappy_bird_game = Some(FlappyBirdGame::new());
+        self.active_game = ActiveGame::FlappyBird(FlappyBirdGame::new());
+    }
+
+    fn start_snake(&mut self) {
+        self.active_game = ActiveGame::Snake(SnakeGame::new(10));
     }
 
     fn return_to_menu(&mut self) {
-        self.menu = true;
-        self.flappy_bird_game = None;
+        self.active_game = ActiveGame::Menu;
+    }
+
+    fn draw_menu(&self, ctx: &mut Context) -> GameResult {
+        let menu_text = graphics::Text::new("Press 1 for Flappy Bird\nPress 2 for Snake\nPress ESC to leave to main menu");
+        graphics::draw(ctx, &menu_text, (ggez::mint::Point2 { x: 300.0, y: 300.0 },))?;
+        Ok(())
     }
 }
 
 impl EventHandler<ggez::GameError> for GameState {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
-        if let Some(ref mut game) = self.flappy_bird_game {
-            game.update(ctx)?;
+        match &mut self.active_game {
+            ActiveGame::Menu => Ok(()),
+            ActiveGame::FlappyBird(game) => game.update(ctx),
+            ActiveGame::Snake(game) => Ok(game.update(ctx)),
         }
-        Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        graphics::clear(ctx, graphics::Color::from_rgb(0, 0, 0));
-
-        if self.menu {
-            self.draw_menu(ctx)?;
-        } else {
-            if let Some(ref mut game) = self.flappy_bird_game {
-                game.draw(ctx)?;
-            }
+        graphics::clear(ctx, graphics::Color::BLUE);
+        match &mut self.active_game {
+            ActiveGame::Menu => self.draw_menu(ctx)?,
+            ActiveGame::FlappyBird(game) => game.draw(ctx)?,
+            ActiveGame::Snake(game) => game.draw(ctx)?,
         }
-
         graphics::present(ctx)?;
         Ok(())
     }
 
-    fn key_down_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymods: KeyMods, _repeat: bool) {
-        if self.menu {
-            if keycode == KeyCode::Key1 {
-                self.start_flappy_bird();
+    fn key_down_event(
+        &mut self,
+        ctx: &mut Context,
+        keycode: KeyCode,
+        _keymods: KeyMods,
+        _repeat: bool
+    ) {
+        if self.active_game == ActiveGame::Menu {
+            match keycode {
+                KeyCode::Key1 => self.start_flappy_bird(),
+                KeyCode::Key2 => self.start_snake(),
+                _ => {}
             }
         } else {
             if keycode == KeyCode::Escape {
                 self.return_to_menu();
             } else if keycode == KeyCode::Space {
-                if let Some(ref mut game) = self.flappy_bird_game {
+                if let ActiveGame::FlappyBird(ref mut game) = self.active_game {
                     game.flap();
                 }
             }
+
+            if let ActiveGame::Snake(ref mut game) = self.active_game {
+                game.change_direction(keycode);
+            }
         }
-    }
-}
-
-impl GameState {
-    fn draw_menu(&self, ctx: &mut Context) -> GameResult {
-        let text = graphics::Text::new("Press 1 to Start Flappy Bird");
-
-        let point = mint::Point2 { x: 200.0, y: 300.0 };
-
-        graphics::draw(ctx, &text, (point,))?;
-
-        Ok(())
     }
 }

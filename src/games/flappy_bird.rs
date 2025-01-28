@@ -4,6 +4,7 @@ use ggez::{Context, GameResult};
 use rand::Rng;
 
 #[derive(Clone)]
+#[derive(PartialEq)]
 pub struct Pipe {
     pub x: f32,
     pub y: f32,
@@ -11,6 +12,7 @@ pub struct Pipe {
     pub height: f32,
 }
 
+#[derive(PartialEq)]
 pub struct FlappyBirdGame {
     pub position: (f32, f32),
     pub width: f32,
