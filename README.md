@@ -10,3 +10,9 @@ Krawędzie w obydwu grach są nieprzechodne, a wlecenie w nie ptakiem, bądź we
 Obie gry zliczają punkty w czasie trwania gry, a wynik jest wyświetlany na końcu. Aplikacja w przyszłości będzie rozbudowana o kolejne mini gry, tak żeby umilić sobię chociażby drogę w pociągu,
 choć wszyscy dobrze wiedzą, że snake'a przyjemniej się pisze, niż w niego gra.
 
+testowane na:
+
+rustc --version
+rustc 1.84.0
+cargo --version
+cargo 1.84.0
