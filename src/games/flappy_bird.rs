@@ -70,8 +70,15 @@ impl FlappyBirdGame {
                     .scale(PxScale::from(30.0))
                     .color(Color::BLACK)
             );
+            let exit_text = Text::new(
+                TextFragment::new(format!("Press ESC to leave"))
+                    .font(Font::default().clone())
+                    .scale(PxScale::from(30.0))
+                    .color(Color::BLACK)
+            );
             graphics::draw(ctx, &game_over, (ggez::mint::Point2 { x: 280.0, y: 100.0 },))?;
             graphics::draw(ctx, &score_text, (ggez::mint::Point2 { x: 280.0, y: 150.0 },))?;
+            graphics::draw(ctx, &exit_text, (ggez::mint::Point2 { x: 280.0, y: 200.0 },))?;
         }
 
         Ok(())

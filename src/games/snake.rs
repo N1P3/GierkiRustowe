@@ -11,6 +11,7 @@ pub struct SnakeGame {
     pub grid_size: i32,
     pub food: (i32, i32),
     pub time_since_last_update: f32,
+    pub score: u32,
     pub game_over: bool,
 }
 
@@ -24,6 +25,7 @@ impl SnakeGame {
             grid_size,
             food: (10, 10),
             time_since_last_update: 0.0,
+            score: 0,
             game_over: false,
         }
     }
@@ -46,6 +48,7 @@ impl SnakeGame {
             self.snake.pop_back();
 
             if self.snake.front().unwrap() == &self.food {
+                self.score += 10;
                 self.snake.push_back(*self.snake.back().unwrap());
                 self.generate_food();
             }
@@ -118,14 +121,21 @@ impl SnakeGame {
                     .scale(PxScale::from(50.0))
                     .color(Color::BLACK)
             );
-            let info = Text::new(
-                TextFragment::new("(Press ESC to leave to main menu)")
+            let score_text = Text::new(
+                TextFragment::new(format!("Score: {}", self.score))
                     .font(Font::default().clone())
-                    .scale(PxScale::from(15.0))
+                    .scale(PxScale::from(30.0))
+                    .color(Color::BLACK)
+            );
+            let exit_text = Text::new(
+                TextFragment::new(format!("Press ESC to leave"))
+                    .font(Font::default().clone())
+                    .scale(PxScale::from(30.0))
                     .color(Color::BLACK)
             );
             graphics::draw(ctx, &game_over, (ggez::mint::Point2 { x: 280.0, y: 100.0 },))?;
-            graphics::draw(ctx, &info, (ggez::mint::Point2 { x: 265.0, y: 145.0 },))?;
+            graphics::draw(ctx, &score_text, (ggez::mint::Point2 { x: 280.0, y: 150.0 },))?;
+            graphics::draw(ctx, &exit_text, (ggez::mint::Point2 { x: 280.0, y: 200.0 },))?;
         }
 
         Ok(())
