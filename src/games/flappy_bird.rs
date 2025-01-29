@@ -1,6 +1,3 @@
-use std::fs::OpenOptions;
-use std::io::Write;
-use std::path::Path;
 use ggez::graphics::{self, Color, DrawMode, DrawParam, Font, Mesh, PxScale, Text, TextFragment};
 use ggez::{Context, GameResult};
 use rand::Rng;

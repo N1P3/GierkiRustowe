@@ -1,14 +1,13 @@
-use std::fs::OpenOptions;
-use std::io::{self, Write};
-use std::path::Path;
-use std::cmp::Ordering;
-use std::collections::HashMap;
-use ggez::{graphics, Context, GameResult};
-use ggez::event::{KeyCode, KeyMods, EventHandler, MouseButton};
-use ggez::graphics::{Color, Font, PxScale, Text, TextFragment, DrawMode, Rect, Mesh, DrawParam};
-use ggez::mint::Point2;
 use crate::games::flappy_bird::FlappyBirdGame;
 use crate::games::snake::SnakeGame;
+use ggez::event::{EventHandler, KeyCode, KeyMods, MouseButton};
+use ggez::graphics::{Color, DrawMode, DrawParam, Font, Mesh, PxScale, Rect, Text, TextFragment};
+use ggez::mint::Point2;
+use ggez::{graphics, Context, GameResult};
+use std::collections::HashMap;
+use std::fs::OpenOptions;
+use std::io::Write;
+use std::path::Path;
 
 #[derive(PartialEq)]
 pub enum ActiveGame {
@@ -167,7 +166,7 @@ impl GameState {
             let game_name_text_params = DrawParam::default().dest(Point2 { x: x_offset_snake - 5.0, y: y_position - 30.0 });
             graphics::draw(ctx, &game_name_text, game_name_text_params)?;
 
-            for (index, score) in snake_scores.iter().enumerate() {
+            for (_index, score) in snake_scores.iter().enumerate() {
                 let score_text = Text::new(
                     TextFragment::new(score.to_string())
                         .font(font.clone())
@@ -188,9 +187,6 @@ impl GameState {
 
         Ok(())
     }
-
-
-
 
 
     fn draw_menu(&self, ctx: &mut Context) -> GameResult {

@@ -1,7 +1,7 @@
-use ggez::{Context, GameResult};
+use ggez::event::KeyCode;
 use ggez::graphics::{Color, DrawMode, Font, PxScale, Rect, Text, TextFragment};
-use ggez::event::{KeyCode};
 use ggez::timer;
+use ggez::{Context, GameResult};
 use std::collections::VecDeque;
 
 #[derive(PartialEq)]
