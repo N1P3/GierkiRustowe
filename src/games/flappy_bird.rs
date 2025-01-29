@@ -1,4 +1,7 @@
-use ggez::graphics::{self, Color, DrawMode, DrawParam, Mesh};
+use std::fs::OpenOptions;
+use std::io::Write;
+use std::path::Path;
+use ggez::graphics::{self, Color, DrawMode, DrawParam, Font, Mesh, PxScale, Text, TextFragment};
 use ggez::{Context, GameResult};
 use rand::Rng;
 
@@ -20,6 +23,7 @@ pub struct FlappyBirdGame {
     pub pipes: Vec<Pipe>,
     pub pipe_speed: f32,
     pub pipe_gap: f32,
+    pub score: u32,
     pub is_dead: bool,
 }
 
@@ -33,6 +37,7 @@ impl FlappyBirdGame {
             pipes: Vec::new(),
             pipe_speed: 4.0,
             pipe_gap: 250.0,
+            score: 0,
             is_dead: false,
         }
     }
@@ -44,13 +49,29 @@ impl FlappyBirdGame {
 
         for pipe in &self.pipes {
             let top_pipe_rect = graphics::Rect::new(pipe.x, 0.0, pipe.width, pipe.height);
-            let bottom_pipe_rect = graphics::Rect::new(pipe.x, pipe.y, pipe.width, pipe.height);
-
-            let top_mesh = Mesh::new_rectangle(ctx, DrawMode::stroke(1.0), top_pipe_rect, Color::GREEN)?;
-            let bottom_mesh = Mesh::new_rectangle(ctx, DrawMode::stroke(1.0), bottom_pipe_rect, Color::GREEN)?;
-
+            let top_mesh = Mesh::new_rectangle(ctx, DrawMode::fill(), top_pipe_rect, Color::GREEN)?;
             graphics::draw(ctx, &top_mesh, DrawParam::default())?;
+
+            let bottom_pipe_rect = graphics::Rect::new(pipe.x, pipe.y, pipe.width, pipe.height);
+            let bottom_mesh = Mesh::new_rectangle(ctx, DrawMode::fill(), bottom_pipe_rect, Color::GREEN)?;
             graphics::draw(ctx, &bottom_mesh, DrawParam::default())?;
+        }
+
+        if self.is_dead {
+            let game_over = Text::new(
+                TextFragment::new("GAME OVER")
+                    .font(Font::default().clone())
+                    .scale(PxScale::from(50.0))
+                    .color(Color::BLACK)
+            );
+            let score_text = Text::new(
+                TextFragment::new(format!("Score: {}", self.score))
+                    .font(Font::default().clone())
+                    .scale(PxScale::from(30.0))
+                    .color(Color::BLACK)
+            );
+            graphics::draw(ctx, &game_over, (ggez::mint::Point2 { x: 280.0, y: 100.0 },))?;
+            graphics::draw(ctx, &score_text, (ggez::mint::Point2 { x: 280.0, y: 150.0 },))?;
         }
 
         Ok(())
@@ -72,6 +93,13 @@ impl FlappyBirdGame {
         if self.pipes.is_empty() || self.pipes[self.pipes.len() - 1].x < 600.0 {
             self.generate_pipe();
         }
+
+        for pipe in &self.pipes {
+            if pipe.x + pipe.width < self.position.0 {
+                self.score += 1;
+            }
+        }
+
         self.check_collisions();
         Ok(())
     }
@@ -106,5 +134,4 @@ impl FlappyBirdGame {
             }
         }
     }
-
 }

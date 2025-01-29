@@ -1,5 +1,5 @@
-use ggez::{graphics, Context, GameResult};
-use ggez::graphics::{Color, DrawMode, Rect};
+use ggez::{Context, GameResult};
+use ggez::graphics::{Color, DrawMode, Font, PxScale, Rect, Text, TextFragment};
 use ggez::event::{KeyCode};
 use ggez::timer;
 use std::collections::VecDeque;
@@ -76,7 +76,7 @@ impl SnakeGame {
 
         loop {
             let x = rng.gen_range(0..self.grid_size);
-            let y = rng.gen_range(0..self.grid_size);
+            let y = rng.gen_range(0..self.grid_size - 10);
 
             if !self.snake.contains(&(x, y)) {
                 self.food = (x, y);
@@ -112,8 +112,20 @@ impl SnakeGame {
         graphics::draw(ctx, &food_mesh, (ggez::mint::Point2 { x: 0.0, y: 0.0 },))?;
 
         if self.game_over {
-            let game_over_text = graphics::Text::new("GAME OVER\nPRESS ESC TO LEAVE");
-            graphics::draw(ctx, &game_over_text, (ggez::mint::Point2 { x: 150.0, y: 250.0 },))?;
+            let game_over = Text::new(
+                TextFragment::new("GAME OVER")
+                    .font(Font::default().clone())
+                    .scale(PxScale::from(50.0))
+                    .color(Color::BLACK)
+            );
+            let info = Text::new(
+                TextFragment::new("(Press ESC to leave to main menu)")
+                    .font(Font::default().clone())
+                    .scale(PxScale::from(15.0))
+                    .color(Color::BLACK)
+            );
+            graphics::draw(ctx, &game_over, (ggez::mint::Point2 { x: 280.0, y: 100.0 },))?;
+            graphics::draw(ctx, &info, (ggez::mint::Point2 { x: 265.0, y: 145.0 },))?;
         }
 
         Ok(())

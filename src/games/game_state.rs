@@ -1,5 +1,7 @@
 use ggez::{graphics, Context, GameResult};
-use ggez::event::{KeyCode, KeyMods, EventHandler};
+use ggez::event::{KeyCode, KeyMods, EventHandler, MouseButton};
+use ggez::graphics::{Color, Font, PxScale, Text, TextFragment, DrawMode, Rect, Mesh};
+use ggez::mint::Point2;
 use crate::games::flappy_bird::FlappyBirdGame;
 use crate::games::snake::SnakeGame;
 
@@ -12,12 +14,16 @@ pub enum ActiveGame {
 
 pub struct GameState {
     pub active_game: ActiveGame,
+    flappy_button: Rect,
+    snake_button: Rect,
 }
 
 impl GameState {
     pub fn new() -> Self {
         GameState {
             active_game: ActiveGame::Menu,
+            flappy_button: Rect::new(250.0, 200.0, 300.0, 60.0),
+            snake_button: Rect::new(250.0, 300.0, 300.0, 60.0),
         }
     }
 
@@ -34,8 +40,56 @@ impl GameState {
     }
 
     fn draw_menu(&self, ctx: &mut Context) -> GameResult {
-        let menu_text = graphics::Text::new("Press 1 for Flappy Bird\nPress 2 for Snake\nPress ESC to leave to main menu");
-        graphics::draw(ctx, &menu_text, (ggez::mint::Point2 { x: 300.0, y: 300.0 },))?;
+        graphics::clear(ctx, Color::from_rgb(255, 253, 208));
+
+        let font = Font::default();
+
+        let title = Text::new(
+            TextFragment::new("GAME MENU")
+                .font(font.clone())
+                .scale(PxScale::from(50.0))
+                .color(Color::BLACK)
+        );
+
+        let info = Text::new(
+            TextFragment::new("(To enter a game, click on it's name or press a corresponding button)")
+                .font(font.clone())
+                .scale(PxScale::from(15.0))
+                .color(Color::BLACK)
+        );
+
+        let flappy_rect = Mesh::new_rectangle(ctx, DrawMode::fill(), self.flappy_button, Color::from_rgb(173, 216, 230))?;
+        let snake_rect = Mesh::new_rectangle(ctx, DrawMode::fill(), self.snake_button, Color::from_rgb(100, 149, 237))?;
+
+        let flappy_text = Text::new(
+            TextFragment::new("Flappy Bird")
+                .font(font.clone())
+                .scale(PxScale::from(30.0))
+                .color(Color::BLACK)
+        );
+
+        let snake_text = Text::new(
+            TextFragment::new("Snake")
+                .font(font.clone())
+                .scale(PxScale::from(30.0))
+                .color(Color::BLACK)
+        );
+
+        let exit_text = Text::new(
+            TextFragment::new("ESC - Exit to Main Menu")
+                .font(font)
+                .scale(PxScale::from(20.0))
+                .color(Color::RED)
+        );
+
+        graphics::draw(ctx, &title, (Point2 { x: 280.0, y: 100.0 },))?;
+        graphics::draw(ctx, &info, (Point2 { x: 115.0, y: 145.0 },))?;
+        graphics::draw(ctx, &flappy_rect, (Point2 { x: 0.0, y: 0.0 },))?;
+        graphics::draw(ctx, &snake_rect, (Point2 { x: 0.0, y: 0.0 },))?;
+        graphics::draw(ctx, &flappy_text, (Point2 { x: 330.0, y: 220.0 },))?;
+        graphics::draw(ctx, &snake_text, (Point2 { x: 360.0, y: 320.0 },))?;
+        graphics::draw(ctx, &exit_text, (Point2 { x: 280.0, y: 400.0 },))?;
+
         Ok(())
     }
 }
@@ -50,14 +104,29 @@ impl EventHandler<ggez::GameError> for GameState {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        graphics::clear(ctx, graphics::Color::BLUE);
         match &mut self.active_game {
             ActiveGame::Menu => self.draw_menu(ctx)?,
-            ActiveGame::FlappyBird(game) => game.draw(ctx)?,
-            ActiveGame::Snake(game) => game.draw(ctx)?,
+            ActiveGame::FlappyBird(game) => {
+                graphics::clear(ctx, Color::from_rgb(135, 206, 250));
+                game.draw(ctx)?;
+            }
+            ActiveGame::Snake(game) => {
+                graphics::clear(ctx, Color::from_rgb(135, 206, 250));
+                game.draw(ctx)?;
+            }
         }
         graphics::present(ctx)?;
         Ok(())
+    }
+
+    fn mouse_button_down_event(&mut self, _ctx: &mut Context, button: MouseButton, x: f32, y: f32) {
+        if button == MouseButton::Left && self.active_game == ActiveGame::Menu {
+            if self.flappy_button.contains([x, y]) {
+                self.start_flappy_bird();
+            } else if self.snake_button.contains([x, y]) {
+                self.start_snake();
+            }
+        }
     }
 
     fn key_down_event(
