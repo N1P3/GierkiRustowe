@@ -16,3 +16,11 @@ rustc --version
 rustc 1.84.0
 cargo --version
 cargo 1.84.0
+
+Możliwe instalacje:
+
+sudo apt install pkg-config
+
+sudo apt install libasound2-dev
+
+sudo apt install libudev-dev
